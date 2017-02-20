@@ -1,4 +1,9 @@
-function Map(nom) {
+var INTERACTION = {
+    "0" : "rien",
+    "51" : "Un trou, il semble possible d'insérer un objet"
+};
+
+function Map(nom, layer) {
 	// Création de l'objet XmlHttpRequest
 	var xhr = getXMLHttpRequest();
 		
@@ -6,48 +11,61 @@ function Map(nom) {
 	xhr.open("GET", './maps/' + nom + '.json', false);
 	xhr.send(null);
 	if(xhr.readyState != 4 || (xhr.status != 200 && xhr.status != 0)) // Code == 0 en local
-		throw new Error("Impossible de charger la carte \"" + nom + "\" (code HTTP : " + xhr.status + ").");
+		throw new Error("Impossible de charger la carte nommée \"" + nom + "\" (code HTTP : " + xhr.status + ").");
 	var mapJsonData = xhr.responseText;
 	
 	// Analyse des données
 	var mapData = JSON.parse(mapJsonData);
-    this.layers = mapData.layers;
-    this.tileset = new Tileset(mapData.layers[0].tileset);
-	this.terrain = mapData.layers[0].terrain;
+	this.tileset = new Tileset(mapData.tilesets[0].name, mapData.tileheight);
+    this.tailleTile = mapData.tileheight;
+    this.terrain = new Array(this.mapWidth);
+    
+    var k = 0;
+    for(var i = 0; i < mapData.height; i++) {
+        this.terrain[i] = new Array(mapData.width);
+        for(var j = 0; j < mapData.width; j++) {
+            this.terrain[i][j] = mapData.layers[layer].data[k];
+            k++;
+        }
+    }
+    
+    // Liste des personnages présents sur le terrain.
+	this.personnages = new Array();
 }
 
 // Pour récupérer la taille (en tiles) de la carte
 Map.prototype.getHauteur = function() {
-	return this.terrain.length;
+    return this.terrain.length;
 }
 Map.prototype.getLargeur = function() {
 	return this.terrain[0].length;
 }
 
+Map.prototype.getTailleTile = function () {
+    return this.tailleTile;
+}
+
+// Pour ajouter un personnage
+Map.prototype.addPersonnage = function(perso) {
+	this.personnages.push(perso);
+}
+
 Map.prototype.dessinerMap = function(context) {
 	for(var i = 0, l = this.terrain.length ; i < l ; i++) {
 		var ligne = this.terrain[i];
-		var y = i * 32;
+		var y = i * this.tailleTile;
 		for(var j = 0, k = ligne.length ; j < k ; j++) {
-			this.tileset.dessinerTile(ligne[j], context, j * 32, y);
+			this.tileset.dessinerTile(ligne[j], context, j * this.tailleTile, y);
 		}
+	} 
+}
+
+// Dessin des personnages
+Map.prototype.dessinerPersonnage = function(context) {
+	for(var i = 0, l = this.personnages.length ; i < l ; i++) {
+		this.personnages[i].dessinerPersonnage(context);
 	}
 }
-
-Map.prototype.dessinerCouches = function(context) {
-    for(var k = 0; k < this.layers.lenght; k++) {
-        this.terrain = this.layers[k].terrain;
-        this.tileset = new Tileset(this.layers[k].tileset);
-        for(var i = 0, l = this.terrain.length ; i < l ; i++) {
-            var ligne = this.terrain;
-            var y = i * 32;
-            for(var j = 0, k = ligne.length ; j < k ; j++) {
-                this.tileset.dessinerTile(ligne[j], context, j * 32, y);
-            }
-        }
-    }
-}
-
 
 
 

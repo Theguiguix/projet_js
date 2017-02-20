@@ -1,4 +1,32 @@
-canvas {
-	border: 1px solid black;
-    background-color: rgb(240,240,240);
+div#game {
+    /*Not used */
 }
+
+div#inventaire {
+	border: 2px solid #009b12;
+    border-radius: 3px;
+    display: table;
+    margin: auto;
+}
+
+div.emplacement {
+    background-color: #ededed;
+    color: darkgray;
+    height: 100px;
+    width: 100px;
+    margin: 5px;
+    float: left;
+}
+
+img.objet {
+    position: relative;
+    top : 35%;           /* la moitié de la hauteur du bloc qui la contient  */
+    left : 50%;          /* la moitié de la largeur du bloc qui la contient  */
+	margin-top : -35px;  /* la moitié de la hauteur de l'image  */
+	margin-left : -35px; /* la moitié de la largeur de l'image  */
+	display : block;
+	height : 70px;
+	width : 70px;
+	display : block;
+}
+
