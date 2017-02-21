@@ -12,6 +12,8 @@ obstacles.push(maps[6]);
 obstacles.push(maps[7]);
 obstacles.push(maps[8]);
 
+var cleTrouvee = false;
+
 var porteOuverte = false;
 var joueur;
 
@@ -35,14 +37,42 @@ window.onload = function() {
     var cascade1 = constantes.NB_FRAMES_CASCADE; 
     var eau2 = 0;
     var cascade2 = 0;
+    var cle1 = constantes.NB_FRAMES_CLE;
+    var cle2 = 0;
+    var cle3 = 0;
+    var cle4 = 0;
     
     main = function () {
-        maps[0].dessinerMap(ctx);
-        maps[1].dessinerMap(ctx);
+        drawLowerLayers(ctx);
+        if(cle1 != 0 && !cleTrouvee) {
+            maps[2].terrain[2][2] = 366;
+            cle1 = cle1 - 1;
+            if(cle1 == 0) {
+                cle2 = constantes.NB_FRAMES_CLE;
+            }
+        } else if (cle2 != 0 && !cleTrouvee) {
+            maps[2].terrain[2][2] = 367;
+            cle2 = cle2 - 1;
+            if(cle2 == 0) {
+                cle3 = constantes.NB_FRAMES_CLE;
+            }
+        } else if (cle3 != 0 && !cleTrouvee) {
+            maps[2].terrain[2][2] = 368;
+            cle3 = cle3 - 1;
+            if(cle3 == 0){
+              cle4 = constantes.NB_FRAMES_CLE;  
+            } 
+        } else if (cle4 != 0 && !cleTrouvee) {
+            maps[2].terrain[2][2] = 367;
+            cle4 = cle4 - 1;
+            if(cle4 == 0){
+              cle1 = constantes.NB_FRAMES_CLE;  
+            } 
+        }
         maps[2].dessinerMap(ctx);
-        maps[3].dessinerMap(ctx);
+        
         maps[2].dessinerPersonnage(ctx);
-        maps[4].dessinerMap(ctx);
+        drawUpperLayers(ctx);
         
         if(eau1 != 0) {
             maps[6].dessinerMap(ctx);
@@ -65,7 +95,7 @@ window.onload = function() {
         }
         
         if(porteOuverte && joueur.getPositionY() == 12 && joueur.getPositionX() == 8) {
-            document.getElementById("interaction").innerHTML = "YOU WIN";
+            endGame();
         }
         requestAnimationFrame(main);
     };
@@ -97,6 +127,7 @@ window.onload = function() {
 				break;
             case 70 : case 102 : // f, F
                 interaction(joueur.interagir(direction, maps[2]));
+                endGame();
                 break;
 			default : 
 				//alert(key);
@@ -108,7 +139,21 @@ window.onload = function() {
 	}
 }
 
+// On déssine les couches inférieur au personnage
+drawLowerLayers = function (ctx) {
+    maps[0].dessinerMap(ctx);
+    maps[1].dessinerMap(ctx);
+    maps[3].dessinerMap(ctx);
+}
+
+// On déssine les couches supérieur au personnage
+drawUpperLayers = function (ctx) {
+    maps[4].dessinerMap(ctx);
+}
+
+// On vérifie ce que doit faire l'interaction avec le tile passé en paramètre
 interaction = function (numTileset) {
+    console.log(numTileset);
     switch(numTileset) {
         case 51 :
             document.getElementById("interaction").innerHTML = constantes.Serrure;
@@ -117,8 +162,11 @@ interaction = function (numTileset) {
             }
             break;
         case 366 :
+        case 367 :
+        case 368 :
             document.getElementById("interaction").innerHTML = constantes.Cle;
             joueur.getInventaire().addObjet(constantes.Cle);
+            cleTrouvee = true;
             maps[2].terrain[joueur.getPositionY()][joueur.getPositionX()] = 0;
             break;
         default :
@@ -126,9 +174,18 @@ interaction = function (numTileset) {
     }
 }
 
+// On affiche la porte et on débloque l'entrée
 afficherPorte = function () {
     maps[2].terrain[11][8] = 342;
     maps[2].terrain[12][8] = 365;
     maps[1].terrain[12][8] = 0;
     porteOuverte = true;
+}
+
+// On affiche l'écran de fin du jeu
+endGame = function () {
+    $(document).ready(function(){
+        $("#canvas").fadeTo("slow", 0.15);
+        $("#endgame").prop("hidden", false);
+    });
 }

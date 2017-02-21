@@ -24,7 +24,6 @@ Inventaire.prototype.addObjet = function (nomObjet) {
         default :
             document.getElementById("interaction").innerHTML = "rien";
     }
-    //Modifier la taille de l'image en 70px x 70px
 };
 
 Inventaire.prototype.getObjet = function (nomObjet) {
